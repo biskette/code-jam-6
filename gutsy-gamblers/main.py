@@ -24,6 +24,7 @@ kivy.require('1.11.1')
 class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
+        self.speedy_time = False
 
         self.dial_widget = DialWidget()
         self.now_marker = NowMarker()
@@ -31,7 +32,7 @@ class MainScreen(Screen):
         self.add_widget(self.dial_widget)
         self.add_widget(self.now_marker)
 
-    def on_size(self, a, b):
+    def on_size(self, *args):
         # Maintains a constant aspect ratio of 0.5625 (16:9)
         width, height = Window.size
 
@@ -45,6 +46,7 @@ class MainScreen(Screen):
 
     def time_control_button(self):
         time_control_popup = TimeWizard(self.dial_widget, self)
+        time_control_popup.background_color = [0, 0, 0, 0]
         time_control_popup.open()
 
     def settings_button(self):
@@ -64,12 +66,18 @@ class MainScreen(Screen):
 # Time control panel #
 class TimeWizard(Popup):
     def __init__(self, dial, parent, **kwargs):
-        self.dial = dial
         super(TimeWizard, self).__init__(**kwargs)
+
+        self.dial = dial
+        self.main = parent
+
         self.redraw_checkbox.bind(active=self.delta_override)
 
         self.current_date.text = self.dial.date.strftime("%d/%m/%Y")
         self.clock = Clock.schedule_interval(self.update_date, self.dial.midnight_delta)
+
+        if self.main.speedy_time is True:
+            self.redraw_checkbox.active = True
 
     def update_date(self, *args):
         print('called update_date')
@@ -80,10 +88,10 @@ class TimeWizard(Popup):
     def delta_override(self, *args):
         print('called delta_override')
         if self.redraw_checkbox.active is True:
-            self.dial.midnight_delta = 0.1
+            self.dial.midnight_delta = 60
             self.update_date()
             self.dial.redraw()
-            # self.parent.speedy_time = True
+            self.main.speedy_time = True
         else:
             midnight = datetime.now() + timedelta(days=1)
             # Good thing flake8 isn't 78 chars huh?
@@ -94,10 +102,17 @@ class TimeWizard(Popup):
                                                  minute=0,
                                                  second=0) - datetime.now()).seconds
             self.dial.redraw()
-            # self.parent.speedy_time = False
+            self.main.speedy_time = False
+
+    def time_lapse(self, value):
+        self.dial.day_length = value
+        self.dial.reanimate_dial()
+
+    def date_lapse(self, value):
+        self.dial.date_increase = value * -1
+        self.dial.redraw()
 
     def revert_date(self):
-        print('called revert_date')
         self.dial.date = datetime.now()
         self.update_date()
         self.dial.redraw()

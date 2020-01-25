@@ -26,6 +26,7 @@
 
 	BoxLayout:
 		orientation: 'vertical'
+		spacing: 10
 
 		GridLayout:
 			size_hint: 1, 0.2
@@ -34,7 +35,6 @@
         		text: "Speedy Time"
 			CheckBox:
 				id: redraw_checkbox
-
 
 		BoxLayout:
 			orientation: 'horizontal'
@@ -52,9 +52,9 @@
 					id: day_slider
 					orientation: 'vertical'
 					min: 1
-					max: 100
-					value: 1
-#					on_touch_up: root.time_lapse(round(self.value))
+					max: 86400
+					value: 86400
+					on_touch_up: root.time_lapse(round(self.value))
 
 			BoxLayout:
 				orientation: 'vertical'
@@ -68,10 +68,10 @@
 				Slider:
 					id: date_slider
 					orientation: 'vertical'
-					min: 1
-					max: 100
-					value: 1
-#					on_touch_up: root.date_lapse(round(self.value))
+					min: -30
+					max: -1
+					value: -1
+					on_touch_up: root.date_lapse(round(self.value))
 
 		Label:
 		    id: current_date

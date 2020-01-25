@@ -95,14 +95,23 @@ class DialWidget(FloatLayout):
         self.add_widget(self.sun_rise_marker)
         self.add_widget(self.sun_set_marker)
 
+        # Define animation
+        self.anim = Animation(angle=359, duration=self.day_length)
+        self.anim += Animation(angle=359, duration=self.day_length)
+        self.anim.repeat = True
+
         self.animate_dial()
         self.clock = Clock.schedule_interval(self.redraw, self.midnight_delta)
 
     def animate_dial(self):
-        anim = Animation(angle=359, duration=self.day_length)
-        anim += Animation(angle=359, duration=self.day_length)
-        anim.repeat = True
-        anim.start(self)
+        self.anim.start(self)
+
+    def reanimate_dial(self):
+        self.anim.stop(self)
+        self.anim = Animation(angle=359, duration=self.day_length)
+        self.anim += Animation(angle=359, duration=self.day_length)
+        self.anim.repeat = True
+        self.animate_dial()
 
     def redraw(self, a=None):
         # Split suntime tuple into named variables
